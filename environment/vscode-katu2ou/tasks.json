@@ -1,0 +1,140 @@
+// {
+//     // See https://go.microsoft.com/fwlink/?LinkId=733558
+//     // for the documentation about the tasks.json format
+//     "version": "2.0.0",
+//     "tasks": [
+//         {
+//             "label": "competitiveTestSample",
+//             "type": "shell",
+//             "command": "cd ${fileDirname} && g++ -std=c++20 -I /opt/homebrew/include -I /opt/homebrew/include/c++/13.0.0 -I /opt/homebrew/include/c++/13.0.0/x86_64-apple-darwin22 ${fileBasename} -o ${fileBasenameNoExtension} && ./${fileBasenameNoExtension} && atcoder-tools test",            
+//             //"command": "cd ${fileDirname} && g++ -O0 -std=c++20 -D_GLIBCXX_DEBUG -I ~/ac-library ${fileBasename} && atcoder-tools test",
+//             "presentation": {
+//               "reveal": "always",
+//               "focus": true,
+//               "panel": "shared",
+//             }
+//           },
+//           {
+//             "label": "competitiveSubmit",
+//             "type": "shell",
+//             "command": "cd ${fileDirname} && g++ -std=c++20 -I /opt/homebrew/include -I /opt/homebrew/include/c++/13.0.0 -I /opt/homebrew/include/c++/13.0.0/x86_64-apple-darwin22 ${fileBasename} -o ${fileBasenameNoExtension} && atcoder-tools submit -u",
+//             //"command": "cd ${fileDirname} && g++ -O0 -std=c++20 -D_GLIBCXX_DEBUG -I ~/ac-library ${fileBasename} && atcoder-tools submit -u",
+//             "presentation": {
+//               "reveal": "always",
+//               "focus": true,
+//               "panel": "shared",
+//             }
+//           }
+//     ]
+// }
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "competitiveTestSample",
+            "type": "shell",
+            "command": "/opt/homebrew/bin/g++",
+            "args": [
+                "-std=c++20",
+                "-isysroot", "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+                "-I", "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include",
+                "-I", "/opt/homebrew/include",
+                "-I", "/opt/homebrew/include/c++/13.0.0",
+                "-I", "/opt/homebrew/include/c++/13.0.0/x86_64-apple-darwin22",
+                "${fileBasename}",
+                "-o", "${fileBasenameNoExtension}"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": ["$gcc"],
+            "dependsOn": "runAtcoderToolsTest"
+        },
+        {
+            "label": "runAtcoderToolsTest",
+            "type": "shell",
+            "command": "atcoder-tools test",
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${fileDirname}"
+            }
+        },
+        {
+            "label": "competitiveSubmit",
+            "type": "shell",
+            "command": "/opt/homebrew/bin/g++",
+            "args": [
+                "-std=c++20",
+                "-isysroot", "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+                "-I", "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include",
+                "-I", "/opt/homebrew/include",
+                "-I", "/opt/homebrew/include/c++/13.0.0",
+                "-I", "/opt/homebrew/include/c++/13.0.0/x86_64-apple-darwin22",
+                "${fileBasename}",
+                "-o", "${fileBasenameNoExtension}"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "dependsOn": "submitWithAtcoderTools"
+        },
+        {
+            "label": "submitWithAtcoderTools",
+            "type": "shell",
+            "command": "atcoder-tools submit -u",
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${fileDirname}"
+            }
+        },
+
+        {
+            "type": "shell",
+            "label": "g++ build active file",
+            "command": "/opt/homebrew/bin/g++",
+            "args": [
+                "-std=c++20", 
+                "-g",
+                "-Wall",
+                "-Wextra",
+                "-Wshadow",
+                //"-fsanitize=address,undefined",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-I",
+                "./ac-library/atcoder/"
+            ],
+            "options": {
+                "cwd": "${fileDirname}/", 
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
