@@ -1,0 +1,26 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(LLDB) Debug",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "args": [
+                "-std=c++20", "-g", "-O2", "-Wall", "-Wextra", "-Wshadow",
+                "-isysroot", "/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk",
+                "-I/Users/kaiwa/ac-library",
+                "${file}",
+                "-o", "${fileBasenameNoExtension}"
+            ],
+            "cwd": "${fileDirname}/",
+            "preLaunchTask": "build-active-file",
+            "env": {                              // 予防線として環境変数でも指定
+                "SDKROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk"
+            }
+        }
+    ]
+}

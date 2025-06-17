@@ -1,0 +1,138 @@
+ICPC用 macでの環境構築
+
+- \ の出し方(デフォルトでは¥が出る)
+    - option + ¥ 
+    - 設定 -> キーボード -> キーコンフィグ -> ローマ字入力
+
+- 整形 (.clang-format)
+    - brew install clang-format  でインストール
+
+    - ワークスペースの最上位に.clang-formatを配置，中身は以下のようにする
+        BasedOnStyle: 'Chromium'
+        IndentWidth: 4
+        AccessModifierOffset: -2
+
+        # for competitive programming
+        AllowShortFunctionsOnASingleLine: All
+        AllowShortIfStatementsOnASingleLine: true
+        AllowShortLoopsOnASingleLine: true
+        AlwaysBreakTemplateDeclarations: false
+
+    - 対象フォルダのsettings.jsonに以下を追加(保存の場合)
+        "editor.formatOnSave": true,
+        // clang-format を常に使う
+        "C_Cpp.clang_format_style": "file",   // ms-vscode.cpptools を使う場合
+        // VSCode 標準フォーマッタを clang-format に固定（Shift+⌥+F）
+        "[cpp]": { "editor.defaultFormatter": "ms-vscode.cpptools" }
+    
+    - 保存ではなく改行で整形する場合は次を記入
+        "[cpp]": {
+            "editor.defaultFormatter": "ms-vscode.cpptools", // ← clang-format を呼ぶ拡張
+            "editor.formatOnType": true, // ← ここがポイント
+            "editor.formatOnSave": false // 保存時は不要なら切る
+        },
+        // ❷ clang-format を使うよう拡張に指示
+        "C_Cpp.formatting": "clangFormat",
+        "C_Cpp.clang_format_style": "file" // .clang-format を読む
+
+    - 保存(command + S)をするたびに整形される
+
+- clangでなくg++を使う (ハマる可能性大)
+    - まず，brew install g++ をする
+
+    - .zshrc ファイルに，export PATH="/opt/homebrew/bin:$PATH" を追加 -> source ~/.zshrc
+
+    - VSCodeのsetting.jsonに
+        "C_Cpp.default.compilerPath": "/opt/homebrew/bin/g++",   // 拡張が g++ を探す
+        "C_Cpp.intelliSenseMode": "gcc-x64",                     // GCC 準拠
+        "[cpp]": {
+            "editor.defaultFormatter": "ms-vscode.cpptools",
+            "editor.formatOnSave": true
+        }
+    を追加
+
+    - VSCodeのtasks.jsonに
+        {
+        "version": "2.0.0",
+        "tasks": [
+            {
+            "label": "build (GCC)",
+            "type": "shell",
+            "command": "g++",              
+            "args": [
+                "-std=gnu++17",
+                "-O2",
+                "${file}",
+                "-o", "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": ["$gcc"]
+            }
+        ]
+        }
+    を追加
+
+    - which g++ で /opt/homebrew/bin/g++ が出ることを確認(clangではない方を
+    使ってもらう)
+    - ホームで.zshrcを追加
+        export PATH="/opt/homebrew/bin:$PATH"
+        export SDKROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk"
+        export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/Users/kaiwa/ac-library"
+    に該当するものを書く
+    - 
+
+
+- コンパイルと実行
+    - コンパイルは，code-runnerにより control + option + N で実行される
+    - command + K + S で，キーコンフィグを見ることができる(run codeと入力)
+    - code-runnerの設定
+        - たぶん下だけで動く
+        {
+            // ── Code Runner ──────────────────────────────────────
+            "code-runner.clearPreviousOutput": true,
+            "code-runner.runInTerminal": true,
+            "code-runner.executorMap": {
+                // ファイルと同じフォルダでコンパイル＆即実行
+                // 競プロ標準: C++20 / 最適化 / 警告 / ACL ヘッダ
+                "cpp": "cd $dir && /opt/homebrew/bin/g++ -std=c++20 -O2 -Wall -I/Users/kaiwa/ac-library $fileName -o $fileNameWithoutExt && $dir./$fileNameWithoutExt"
+            },
+
+            // ── C/C++ 拡張 (ms-vscode.cpptools) ──────────────────
+            "C_Cpp.default.compilerPath": "/opt/homebrew/bin/g++",
+            "C_Cpp.default.includePath": [
+                "${workspaceFolder}/**",
+                "/Users/kaiwa/ac-library/**"
+            ],
+
+            // コードフォーマット設定（好みに合わせて調整可）
+            "C_Cpp.vcFormat.newLine.beforeOpenBrace.function": "sameLine",
+            "C_Cpp.vcFormat.newLine.beforeOpenBrace.block": "sameLine",
+            "C_Cpp.clang_format_style": "{ BasedOnStyle: LLVM, BreakBeforeBraces: Attach, IndentWidth: 4 }"
+        }
+
+- .vscodeファイル
+    - c_cpp_properties.json : c/c++拡張のintellisense(includepathなど)
+    - launch.json : デバッガの起動設定 (f5でデバッグ?)
+    - tasks.json : ビルド・テストなどを一つのコマンドで呼べるようにする
+    - settings.json : ワークスペース固有のVSCode設定
+
+- デバグ
+    - code lldbを拡張機能としてインストールする
+    - F5でビルド + デバグ
+
+-
+
+- tasks.jsonに書いた機能に対するキーボードショートカット
+    - tasksにlabelを付ける
+    -> command+shift+P -> preferences: open keyboard shortcuts(JSON)を選ぶ
+    -> {
+        "key": "ctrl+shift+b",
+        "command": "workbench.action.tasks.runTask",
+        "args": "build-sanitize",   // ← タスク名そのまま
+        "when": "editorTextFocus"   // 任意（フォーカスがエディタにある時だけ等）
+    } などと書く
+
+- 入出力(使わないかも)
+    ./test < input.txt > output.txt 
+
+- 
